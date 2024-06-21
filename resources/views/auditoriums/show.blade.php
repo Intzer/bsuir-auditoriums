@@ -15,7 +15,7 @@
 
     <div class="row">
 
-        <div class="col-12 col-md-6 order-1 order-md-0 mb-2 mb-md-0">
+        <div class="col-12 col-md-6 order-1 order-md-0">
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title text-center">{{ __('Занятия') }}</h3>
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 order-0 oreder-md-1">
+        <div class="col-12 col-md-6 order-0 oreder-md-1 mb-2 mb-md-0">
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title text-center">{{ __('Сейчас') }}</h3>

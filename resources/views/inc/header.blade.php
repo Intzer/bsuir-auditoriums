@@ -1,5 +1,5 @@
-<header class="my-2">
-    <nav class="navbar bg-body-tertiary">
+<header>
+    <nav class="navbar bg-body-tertiary py-3">
         <div class="container-fluid">
             <form action="{{ route('auditoriums.index') }}" method="get" class="d-flex m-auto">
                 <input class="form-control me-2" type="text" name="name" placeholder="{{ __('Номер аудитории') }}">
