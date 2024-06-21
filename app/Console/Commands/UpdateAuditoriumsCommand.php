@@ -29,11 +29,10 @@ class UpdateAuditoriumsCommand extends Command
     public function handle()
     {
         $response = Http::get('https://iis.bsuir.by/api/v1/auditories');
-
         if ($response->successful()) 
         {
-            Auditorium::truncate();
-            Building::truncate();
+            Auditorium::query()->delete();
+            Building::query()->delete();
 
             $auditoriums = $response->json();
             $buildings = [];
@@ -52,10 +51,8 @@ class UpdateAuditoriumsCommand extends Command
                 ]);
             }
 
-
             foreach ($auditoriums as $auditorium)
             {
-                info($auditorium['buildingNumber']['id']);
                 $res = Auditorium::create([
                     'id' => $auditorium['id'],
                     'name' => $auditorium['name'],
@@ -65,7 +62,7 @@ class UpdateAuditoriumsCommand extends Command
         } 
         else 
         {
-            info('Updateing auditories was failed, code: '.$response->status());
+            info('Updateing auditoriums was failed, code: '.$response->status());
         }
     }
 }

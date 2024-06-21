@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('task:update-auditoriums')->everyTenMinutes();
+        $schedule->command('task:update-auditoriums')->everyHour();
+        $schedule->command('task:update-lessons')->everyHour();
     }
 
     /**
