@@ -12,10 +12,16 @@
     @endphp
 
     @foreach($buildings as $building)
-        @include('auditoriums.inc.block', compact('building'))
+        @if(!$name || $building->auditoriums->contains('name', $name))
+            @include('auditoriums.inc.block', compact('building'))
+
+            @php
+                $blockCount += 1;
+            @endphp
+        @endif
     @endforeach
 
-    @if ($blockCount === 0)
+    @if ($blockCount == 0)
     <div class="alert alert-warning">
         {{ __('Не найдено аудиторий, соответствующим запросу.') }}
     </div>
