@@ -6,4 +6,5 @@ API is used to obtain information: https://iis.bsuir.by/api
 - You need PHP 8.2 and Composer
 - Execute composer install
 - Execute php artisan migrate
-- Make cron in crontab -e command: * * * * * cd /path/to/bsuir-auditoriums.by/ && php artisan schedule:run >> /dev/null 2>&1
+- Make cron in crontab -e command: 
+* * * * * cd /path/to/bsuir-auditoriums.by/ && php artisan schedule:run >> /dev/null 2>&1
