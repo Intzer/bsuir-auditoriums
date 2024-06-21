@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Group;
 use App\Models\WeekNumber;
+use App\Models\Auditorium;
 
 class Lesson extends Model
 {
@@ -16,8 +17,10 @@ class Lesson extends Model
         'group_id',
         'week_day',
         'auditorium',
-        'start',
-        'end',
+        'start_time',
+        'end_time',
+        'note',
+        'num_subgroup',
     ];
 
     protected function casts(): array
@@ -28,8 +31,9 @@ class Lesson extends Model
             'group_id' => 'integer',
             'week_day' => 'integer',
             'auditorium' => 'string',
-            'start' => 'string',
-            'end' => 'string',
+            'start_time' => 'string',
+            'end_time' => 'string',
+            'num_subgroup',
         ];
     }
 
@@ -41,5 +45,10 @@ class Lesson extends Model
     public function WeeksNumbers(): BelongsToMany
     {
         return $this->belongsToMany(WeekNumber::class);
+    }
+
+    public function auditoriums(): BelongsToMany
+    {
+        return $this->belongsToMany(Auditorium::class);
     }
 }

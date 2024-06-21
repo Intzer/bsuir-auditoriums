@@ -35,6 +35,8 @@ class UpdateAuditoriumsCommand extends Command
             Building::query()->delete();
 
             $auditoriums = $response->json();
+
+            // Update buildings
             $buildings = [];
             foreach ($auditoriums as $auditorium)
             {
@@ -51,6 +53,7 @@ class UpdateAuditoriumsCommand extends Command
                 ]);
             }
 
+            // Update auidotoriums
             foreach ($auditoriums as $auditorium)
             {
                 $res = Auditorium::create([

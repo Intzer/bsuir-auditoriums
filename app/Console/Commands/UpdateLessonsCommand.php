@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Auditorium;
 use Illuminate\Console\Command;
 use App\Models\Group;
 use App\Models\Lesson;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 
 class UpdateLessonsCommand extends Command
@@ -40,9 +42,11 @@ class UpdateLessonsCommand extends Command
             {
                 if (random_int(1, 20) == 4) exit;
 
-                $res = Group::create([
-                    'id' => $group['name'],
-                    'name' => $group['facultyAbbrev'],
+                Group::create([
+                    'id' => $group['id'],
+                    'name' => $group['name'],
+                    'faculty_name' => $group['facultyAbbrev'],
+                    'speciality_name' => $group['specialityName'],
                 ]);
 
                 $response = Http::get('https://iis.bsuir.by/api/v1/schedule?studentGroup='.$group['name']);
@@ -67,16 +71,28 @@ class UpdateLessonsCommand extends Command
                             foreach ($response['previousSchedules'][$weekDays[$i]] as $schedule) 
                             {
                                 $lesson = Lesson::create([
+                                    'group_id' => $group['id'],
                                     'name' => $schedule['subjectFullName'],
-                                    'start' => $schedule['startLessonTime'],
-                                    'end' => $schedule['endLessonTime'],
-                                    'auditorium' =>$schedule['auditories'][0],
-                                    'group_id' => $group['name'],
+                                    'start_time' => $schedule['startLessonTime'],
+                                    'end_time' => $schedule['endLessonTime'],
                                     'week_day' => $i,
+                                    'note' => $schedule['note'] ?? null,
+                                    'num_subgroup' => $schedule['numSubgroup'],
                                 ]);
+
+                                foreach ($schedule['auditories'] as $auditorium) {
+                                    $auditorium_name = Str::before($auditorium, '-');
+                                    $auditorium = Auditorium::query()
+                                        ->where('name', $auditorium_name)
+                                        ->first();
+
+                                    if ($auditorium) {
+                                        $lesson->auditoriums()->attach($auditorium->id);
+                                    }
+                                }
     
                                 foreach ($schedule['weekNumber'] as $weekNumber) {
-                                    $lesson->weekNumbers()->attach($weekNumber);
+                                    $lesson->weeksNumbers()->attach($weekNumber);
                                 }
                             }
                         }

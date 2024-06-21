@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('lessons', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('auditorium');
             $table->foreignId('group_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('week_day');
-            $table->string('start');
-            $table->string('end');
+            $table->string('start_time');
+            $table->string('end_time');
+            $table->string('note')->nullable();
+            $table->integer('num_subgroup');
             $table->timestamps();
         });
     }

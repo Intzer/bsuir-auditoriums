@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('auditoria', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('building_id');
+            $table->foreignId('building_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

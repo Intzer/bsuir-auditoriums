@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Building;
 use App\Models\Lesson;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Carbon\Carbon;
 
 class Auditorium extends Model
@@ -30,27 +31,29 @@ class Auditorium extends Model
         return $this->belongsTo(Building::class);
     }
 
-    public function isOccupied(): bool
+    public function lessons(): BelongsToMany
     {
-        $building = $this->building;
+        return $this->belongsToMany(Lesson::class);
+    }
 
-        $dayOfWeek = Carbon::now()->dayOfWeek + 1;
-        $weekOfMonth = Carbon::now()->weekOfMonth;
-        $currentTime = Carbon::now()->format('H:i');
+    public function isOccupiedNow(): bool
+    {
+        $weekDay = Carbon::now()->dayOfWeek + 1;
+        $weekMonth = Carbon::now()->weekOfMonth;
+        $now = Carbon::now();
 
-        $lessons = Lesson::query()
-            ->where('auditorium', $this->name.'='.$building->name)
-            ->where('week_day', $dayOfWeek)
-            ->whereHas('weeksNumbers', function ($query) use ($weekOfMonth) {
-                $query->where('week_number_id', $weekOfMonth);
+        $lessons = $this->lessons()
+            ->where('week_day', $weekDay)
+            ->whereHas('weeksNumbers', function ($query) use ($weekMonth) {
+                $query->where('week_number_id', $weekMonth);
             })
             ->get();
-
+        
         foreach ($lessons as $lesson)
         {
-            $start = Carbon::createFromFormat('H:i', $lesson->start);
-            $end = Carbon::createFromFormat('H:i', $lesson->start);
-            if ($currentTime->gt($start) && $currentTime->lt($end)) {
+            $startTime = Carbon::createFromFormat('H:i', $lesson->start_time);
+            $endTime = Carbon::createFromFormat('H:i', $lesson->end_time);
+            if ($now->between($startTime, $endTime)) {
                 return true;
             }
         }

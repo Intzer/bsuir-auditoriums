@@ -11,13 +11,17 @@ class Group extends Model
     protected $fillable = [
         'id',
         'name',
+        'faculty_name',
+        'speciality_name',
     ];
 
     protected function casts(): array
     {
         return [
             'id' => 'integer',
-            'name' => 'string',
+            'name' => 'integer',
+            'faculty_name' => 'string',
+            'speciality_name' => 'string',
         ];
     }
 
