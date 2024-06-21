@@ -10,7 +10,11 @@ API is used to obtain information: https://iis.bsuir.by/api
 
 ## Images
 ![](storage/app/public/img/material1.png)
+---
 ![](storage/app/public/img/material2.png)
+---
 ![](storage/app/public/img/material3.png)
+---
 ![](storage/app/public/img/material4.png)
+---
 ![](storage/app/public/img/database.png)
