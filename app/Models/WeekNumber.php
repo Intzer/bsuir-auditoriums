@@ -10,7 +10,7 @@ use App\Models\Lesson;
 class WeekNumber extends Model
 {
     protected $fillable = [
-        'id'
+        'id',
     ];
 
     protected function casts(): array

@@ -38,12 +38,12 @@ class Auditorium extends Model
 
     public function isOccupiedNow(): bool
     {
-        $weekDay = Carbon::now()->dayOfWeek + 1;
+        $weekDay = Carbon::now()->dayOfWeek;
         $weekMonth = Carbon::now()->weekOfMonth;
         $now = Carbon::now();
 
         $lessons = $this->lessons()
-            ->where('week_day', $weekDay)
+            ->where('week_day_id', $weekDay)
             ->whereHas('weeksNumbers', function ($query) use ($weekMonth) {
                 $query->where('week_number_id', $weekMonth);
             })

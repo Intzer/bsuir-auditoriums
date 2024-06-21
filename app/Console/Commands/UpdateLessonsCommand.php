@@ -37,10 +37,13 @@ class UpdateLessonsCommand extends Command
             Lesson::query()->delete();
             Group::query()->delete();
 
+            // $repeats = 0;
+
             $groups = $response->json();
             foreach ($groups as $group)
             {
-                if (random_int(1, 20) == 4) exit;
+                // $repeats += 1;
+                // if ($repeats > 100) exit;
 
                 Group::create([
                     'id' => $group['id'],
@@ -50,6 +53,7 @@ class UpdateLessonsCommand extends Command
                 ]);
 
                 $response = Http::get('https://iis.bsuir.by/api/v1/schedule?studentGroup='.$group['name']);
+                $this->info("Getting schedule for ".$group['name']);
                 if ($response->successful())
                 {
                     $response = $response->json();
@@ -63,7 +67,6 @@ class UpdateLessonsCommand extends Command
                         6 => "Суббота",
                     ];
 
-                    $i = 1;
                     for ($i = 1; $i < 7; $i++)
                     {
                         if (isset($response['previousSchedules'][$weekDays[$i]]))
@@ -75,7 +78,7 @@ class UpdateLessonsCommand extends Command
                                     'name' => $schedule['subjectFullName'],
                                     'start_time' => $schedule['startLessonTime'],
                                     'end_time' => $schedule['endLessonTime'],
-                                    'week_day' => $i,
+                                    'week_day_id' => $i,
                                     'note' => $schedule['note'] ?? null,
                                     'num_subgroup' => $schedule['numSubgroup'],
                                 ]);

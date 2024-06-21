@@ -11,26 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('week_numbers', function (Blueprint $table) {
+        Schema::create('week_days', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->timestamps();
         });
 
-        DB::table('week_numbers')->insert([
+        DB::table('week_days')->insert([
             [
-                'id' => 1
+                'name' => 'Понедельник'
             ],
             [
-                'id' => 2
+                'name' => 'Вторник'
             ],
             [
-                'id' => 3
+                'name' => 'Среда'
             ],
             [
-                'id' => 4
+                'name' => 'Четверг'
             ],
             [
-                'id' => 5
+                'name' => 'Пятница'
+            ],
+            [
+                'name' => 'Суббота'
             ],
         ]);
     }
@@ -40,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('week_numbers');
+        Schema::dropIfExists('week_days');
     }
 };
