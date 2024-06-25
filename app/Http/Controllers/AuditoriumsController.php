@@ -30,4 +30,24 @@ class AuditoriumsController extends Controller
 
         return view('auditoriums.show', compact('auditorium', 'weekDays', 'weekDayText', 'weekMonthText', 'nowTimeText'));
     }
+    
+    public function apiAuditoriums(Request $request)
+    {
+        $id = $request->input('building');
+        $building = Building::query()->findOrFail($id);
+
+        $tpl = '';
+
+        $first = true;
+        foreach($building->auditoriums as $auditorium) {
+            $tpl .= view('auditoriums.inc.option', ['auditorium' => $auditorium, 'first' => $first])->render();
+            $first = false;
+        }
+
+        if (empty($tpl)) {
+            $tpl = '<option disabled selected>'.__('Аудиторий нет').'</option>';
+        }
+
+        return $tpl;
+    }
 }

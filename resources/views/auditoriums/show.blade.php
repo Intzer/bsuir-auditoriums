@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-    @include('auditoriums.inc.breadcrumb', ['name' => $auditorium->name.'-'.$auditorium->building->name])
+    @include('inc.breadcrumb', ['name' => $auditorium->name.'-'.$auditorium->building->name])
 
     <div class="row mb-2">
         <div class="col-12">

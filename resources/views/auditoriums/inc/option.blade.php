@@ -1,0 +1,1 @@
+<option {{ $first ? 'selected' : '' }} value="{{ $auditorium->id }}">{{ $auditorium->name }}</option>

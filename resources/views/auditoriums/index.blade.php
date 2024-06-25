@@ -3,7 +3,7 @@
 @section('content')
 
     @if ($name)
-        @include('auditoriums.inc.breadcrumb', ['name' => __('Поиск:').' '.$name])
+        @include('inc.breadcrumb', ['name' => __('Поиск:').' '.$name])
     @endif
 
 
