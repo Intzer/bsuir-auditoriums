@@ -15,21 +15,14 @@ function fetchAuditoriums(building_id,  result_container_id) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const building_from = document.getElementById('building_from').value;
-    if (building_from) {
-        fetchAuditoriums(building_from, 'auditorium_from')
+    const building_where = document.getElementById('building_where').value;
+    if (building_where) {
+        fetchAuditoriums(building_where, 'auditorium_from');
+        fetchAuditoriums(building_where, 'auditorium_to');
 
-        document.getElementById('building_from').addEventListener("change", function() {
-            fetchAuditoriums(this.value, 'auditorium_from')
-        });
-    }
-
-    const building_to = document.getElementById('building_to').value;
-    if (building_to) {
-        fetchAuditoriums(building_to, 'auditorium_to')
-
-        document.getElementById('building_to').addEventListener("change", function() {
-            fetchAuditoriums(this.value, 'auditorium_to')
+        document.getElementById('building_where').addEventListener("change", function() {
+            fetchAuditoriums(this.value, 'auditorium_from');
+            fetchAuditoriums(this.value, 'auditorium_to');
         });
     }
 });
