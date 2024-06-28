@@ -36,18 +36,17 @@ class AuditoriumsController extends Controller
         $id = $request->input('building');
         $building = Building::query()->findOrFail($id);
 
-        $tpl = '';
-
+        // Creating options
+        $options = '';
         $first = true;
         foreach($building->auditoriums as $auditorium) {
-            $tpl .= view('auditoriums.inc.option', ['auditorium' => $auditorium, 'first' => $first])->render();
+            $options .= view('auditoriums.inc.option', ['auditorium' => $auditorium, 'first' => $first])->render();
             $first = false;
         }
-
-        if (empty($tpl)) {
-            $tpl = '<option disabled selected>'.__('Аудиторий нет').'</option>';
+        if (empty($options)) {
+            $options = '<option disabled selected>'.__('Аудиторий нет').'</option>';
         }
 
-        return $tpl;
+        return ['options' => $options];
     }
 }

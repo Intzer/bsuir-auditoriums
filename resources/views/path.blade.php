@@ -31,28 +31,25 @@
                             <label for="auditorium_to">{{ __('Вам нужно в аудиторию') }}:</label>
                             <select class="form-control" id="auditorium_to"></select>
                         </div>
-                        <button type="button" class="btn btn-success w-100">{{ __('Проложить') }}</button>
+                        <button type="button" class="btn btn-success w-100" onclick="drawMap()">{{ __('Проложить') }}</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-nonee">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="mb-2">
+                    <div class="mb-2" id="floors">
                         <button class="btn btn-outline-warning">1 этаж</button>
                         <button class="btn btn-outline-warning">2 этаж</button>
                         <button class="btn btn-outline-warning">3 этаж</button>
                         <button class="btn btn-outline-warning">4 этаж</button>
                     </div>
                     <div>
-                        <p>Схема передвижения от 111 до 402 аудитории для 1 этажа:</p>
-                        <div>
-                            <img src="https://placehold.co/1000x300" alt="">
-                        </div>
+                        <canvas id="mapCanvas" width="800px" height="600px"></canvas>
                     </div>
                 </div>
             </div>
@@ -62,5 +59,5 @@
 @endsection
 
 @pushonce('js')
-    <script src="/assets/js/path.js"></script>
+    @vite('resources/js/path.js')
 @endpushonce
