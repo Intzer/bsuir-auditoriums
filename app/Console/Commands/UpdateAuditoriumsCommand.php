@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Auditorium;
 use App\Models\Building;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
 class UpdateAuditoriumsCommand extends Command
@@ -21,7 +21,7 @@ class UpdateAuditoriumsCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Update auditoriums cache';
 
     /**
      * Execute the console command.
@@ -29,7 +29,7 @@ class UpdateAuditoriumsCommand extends Command
     public function handle()
     {
         $response = Http::get('https://iis.bsuir.by/api/v1/auditories');
-        if ($response->successful()) 
+        if ($response->successful())
         {
             Auditorium::query()->delete();
             Building::query()->delete();
@@ -42,10 +42,10 @@ class UpdateAuditoriumsCommand extends Command
             {
                 if (!in_array($auditorium['buildingNumber']['id'], $buildings)) {
                     $buildings[$auditorium['buildingNumber']['id']] = $auditorium['buildingNumber']['name'];
-                } 
+                }
             }
 
-            foreach ($buildings as $key => $value) 
+            foreach ($buildings as $key => $value)
             {
                 Building::create([
                     'id' => $key,
@@ -56,16 +56,16 @@ class UpdateAuditoriumsCommand extends Command
             // Update auidotoriums
             foreach ($auditoriums as $auditorium)
             {
-                $res = Auditorium::create([
+                Auditorium::create([
                     'id' => $auditorium['id'],
                     'name' => $auditorium['name'],
                     'building_id' => $auditorium['buildingNumber']['id'],
                 ]);
             }
-        } 
-        else 
+        }
+        else
         {
-            info('Updateing auditoriums was failed, code: '.$response->status());
+            info('Updating auditoriums was failed, code: '.$response->status());
         }
     }
 }

@@ -8,6 +8,8 @@ API is used to obtain information: https://iis.bsuir.by/api
 - Execute php artisan migrate
 - Make cron in crontab -e command: * * * * * cd /path/to/bsuir-auditoriums.by/ && php artisan schedule:run >> /dev/null 2>&1
 
+Or you may use laravel sail: https://laravel.com/docs/11.x/sail#main-content
+
 ## Images
 ![](storage/app/public/img/material1.png)
 ---

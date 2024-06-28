@@ -1,5 +1,3 @@
 *
 !public/
-!public/img/
-!public/img/*
 !.gitignore
