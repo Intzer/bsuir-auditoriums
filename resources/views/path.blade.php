@@ -31,14 +31,14 @@
                             <label for="auditorium_to">{{ __('Вам нужно в аудиторию') }}:</label>
                             <select class="form-control" id="auditorium_to"></select>
                         </div>
-                        <button type="button" class="btn btn-success w-100" onclick="drawMap()">{{ __('Проложить') }}</button>
+                        <button type="button" class="btn btn-success w-100" onclick="drawMapWithPath()">{{ __('Проложить') }}</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-none" id="path_block">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
