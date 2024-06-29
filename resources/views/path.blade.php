@@ -38,18 +38,16 @@
         </div>
     </div>
 
-    <div class="row d-nonee">
+    <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="mb-2" id="floors">
-                        <button class="btn btn-outline-warning">1 этаж</button>
-                        <button class="btn btn-outline-warning">2 этаж</button>
-                        <button class="btn btn-outline-warning">3 этаж</button>
-                        <button class="btn btn-outline-warning">4 этаж</button>
+                        <button class="btn btn-warning" onclick="changeFloor(1)">1 этаж</button>
+                        <button class="btn btn-outline-warning" onclick="changeFloor(2)">2 этаж</button>
                     </div>
                     <div>
-                        <canvas id="mapCanvas" width="800px" height="600px"></canvas>
+                        <canvas id="mapCanvas" style="max-width: 100%"></canvas>
                     </div>
                 </div>
             </div>
