@@ -10,6 +10,11 @@ API is used to obtain information: https://iis.bsuir.by/api
 
 Or you may use laravel sail: https://laravel.com/docs/11.x/sail#main-content
 
+## TODO
+- Specify line direction
+- Specify stairs direction (up or down)
+- Draw text after path (to avoid some bugs)
+
 ## Images
 ![](storage/app/public/img/material1.png)
 ---
