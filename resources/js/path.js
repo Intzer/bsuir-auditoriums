@@ -1,6 +1,6 @@
 /* Form */
-function fetchAuditoriums(buildingId,  resultContainersIds) {
-    fetch('/api/v1.0/auditoriums?building='+buildingId)
+function fetchAuditoriums(buildingId, resultContainersIds) {
+    fetch('/api/v1.0/auditoriums?building=' + buildingId)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
@@ -11,6 +11,8 @@ function fetchAuditoriums(buildingId,  resultContainersIds) {
             resultContainersIds.forEach((containerId) => {
                 document.getElementById(containerId).innerHTML = data.options;
             });
+            document.getElementById("floors").innerHTML = data.floor_buttons;
+            loadValues(JSON.parse(data.building_map), JSON.parse(data.building_rooms));
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -26,30 +28,22 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-/* PathBuilder */
-
+/* Path building */
 const canvas = document.getElementById('mapCanvas');
 const ctx = canvas.getContext('2d');
 
-// Global variables
-let cellSize = 80;
-let startPoint = null;
-let endPoint = null;
-
-// Returning of building choose
+const cellSize = 80;
 let map = [];
 let rooms = [];
-
-// Filled by the forms and button
 let floor = 1;
-let startRoom = 0;
-let endRoom = 0;
 
-// So if we have Map and Rooms we can draw something?
-
-// load values when changing building
+// Load building map and resize the canvas
 function loadValues(newMap, newRooms) {
-    floor = 1; // Set floor to first
+    if (newMap[0] !== undefined) {
+        floor = 0;
+    } else {
+        floor = 1;
+    }
     map = newMap;
     rooms = newRooms;
 
@@ -57,130 +51,71 @@ function loadValues(newMap, newRooms) {
     canvas.width = map[floor][0].length * cellSize;
 }
 
-// Change floor = change canvas size because of different sizes of floors
-// And redraw our map with path
-function changeFloor(value) {
-    floor = value;
-    if (floor > map.length) {
-        floor = 1;
-    }
-    canvas.height = map[floor].length * cellSize;
-    canvas.width = map[floor][0].length * cellSize;
+function startBuilding() {
+    const fromRoom = document.getElementById('auditorium_from').value;
+    let from = null;
 
-    drawMap();
-
-    let path = null;
-    if (floor === endRoom.floor) {
-        path = bfs(findStairs(), endRoom);
-    } else if (floor == startRoom.floor) {
-        if (startRoom.floor === endRoom.floor) {
-            path = bfs(startRoom, endRoom);
-        } else {
-            path = bfs(startRoom, findStairs());
-        }
-    } else {
-        path = bfs(findStairs(), findStairs());
-    }
-
-    drawPath(path);
-}
-
-// Find path from start to end on the map
-function bfs(start, end) {
-    const floorMap = map[floor];
-    const directions = [
-        [0, 1], [1, 0], [0, -1], [-1, 0]
-    ];
-    const queue = [];
-    const visited = new Set();
-    queue.push([start.x, start.y, []]);
-
-    while (queue.length > 0) {
-        const [x, y, path] = queue.shift();
-        const pos = `${x},${y}`;
-
-        if (x === end.x && y === end.y) {
-            return path.concat([[x, y]]);
-        }
-
-        if (visited.has(pos)) {
-            continue;
-        }
-
-        visited.add(pos);
-
-        for (const [dx, dy] of directions) {
-            const nx = x + dx;
-            const ny = y + dy;
-
-            if (nx >= 0 && ny >= 0 && nx < floorMap[0].length && ny < floorMap.length && (floorMap[ny][nx] === 'c' || floorMap[ny][nx] === 'r' || floorMap[ny][nx] === 's')) {
-                queue.push([nx, ny, path.concat([[x, y]])]);
-            }
-        }
-    }
-
-    return null;
-}
-
-function drawMapWithPath() {
-    floor = 1;
-    document.getElementById('path_block').classList.remove('d-none');
-
-    const startRoomName = document.getElementById('auditorium_from').value;
-    const endRoomName = document.getElementById('auditorium_to').value;
-
+    // Find the coordinates of the rooms
     rooms.forEach((room) => {
-        if (room.name === startRoomName) {
-            startRoom = room;
-        }  else if (room.name === endRoomName) {
-            endRoom = room;
+        if (room.name === fromRoom) {
+            from = room;
         }
     });
 
-    if (!startRoom || !endRoom) {
-        alert('Неверные номера аудиторий');
+    if (!from) {
+        console.error('From room not found');
         return;
     }
 
-    drawMap();
-
-    let path = null;
-    if (startRoom.floor === endRoom.floor) {
-        path = bfs(startRoom, endRoom);
-    } else if (startRoom.floor > endRoom.floor) { // To downstairs
-        path = bfs(startRoom, findStairs());
-    } else if (startRoom.floor < endRoom.floor) { // to upstairs
-        path = bfs(startRoom, findStairs());
+    if (from.floor !== floor) {
+        changeFloor(from.floor);
+        return;
     }
-    drawPath(path);
+
+    drawMapWithPath();
+}
+
+function changeFloor(value) {
+    // Set clicked floor button as active
+    let floorBtns = document.getElementsByClassName('floor_btn');
+    for (let i = 0; i < floorBtns.length; i++) {
+        floorBtns[i].classList.remove('btn-warning');
+        floorBtns[i].classList.remove('btn-outline-warning');
+        floorBtns[i].classList.add('btn-outline-warning');
+    }
+    document.getElementById('floor_btn_' + value).classList.remove('btn-outline-warning');
+    document.getElementById('floor_btn_' + value).classList.add('btn-warning');
+
+    // Change floor and resize the canvas
+    floor = value;
+    canvas.height = map[floor].length * cellSize;
+    canvas.width = map[floor][0].length * cellSize;
+
+    drawMapWithPath();
 }
 
 function drawMap() {
-    const floorMap = map[floor];
-    const cellSizeX = canvas.width / floorMap[0].length;
-    const cellSizeY = canvas.height / floorMap.length;
-
-    for (let y = 0; y < floorMap.length; y++) {
-        for (let x = 0; x < floorMap[0].length; x++) {
+    for (let y = 0; y < map[floor].length; y++) {
+        for (let x = 0; x < map[floor][0].length; x++) {
             let text = '';
 
-            if (floorMap[y][x] === 'r') {
+            if (map[floor][y][x] === 'r') {
                 ctx.fillStyle = 'lightblue';
                 rooms.forEach((room) => {
                     if (room.floor === floor && room.y === y && room.x === x) {
                         text = room.name;
                     }
                 });
-            } else if (floorMap[y][x] === 'c') {
+            } else if (map[floor][y][x] === 'c') {
                 ctx.fillStyle = 'white';
-            } else if (floorMap[y][x] === 's') {
+            } else if (map[floor][y][x] === 's') {
                 ctx.fillStyle = 'yellow';
                 text = 'Лестница';
             } else {
                 ctx.fillStyle = 'gray';
             }
 
-            ctx.fillRect(x * cellSizeX, y * cellSizeY, cellSizeX, cellSizeY);
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
             if (text !== '') {
                 ctx.fillStyle = 'black';
@@ -202,76 +137,285 @@ function drawMap() {
     }
 }
 
-function drawPath(path) {
-    if (!path) {
-        return;
-    }
+function drawMapWithPath() {
+    document.getElementById('path_block').classList.remove('d-none');
 
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 3;
+    drawMap();
 
-    ctx.beginPath();
-    ctx.moveTo(path[0][0] * cellSize + cellSize / 2, path[0][1] * cellSize + cellSize / 2);
+    const fromRoom = document.getElementById('auditorium_from').value;
+    const toRoom = document.getElementById('auditorium_to').value;
 
-    for (let i = 1; i < path.length; i++) {
-        ctx.lineTo(path[i][0] * cellSize + cellSize / 2, path[i][1] * cellSize + cellSize / 2);
-    }
+    let from = null;
+    let to = null;
+    let stairs = null;
 
-    ctx.stroke();
-}
+    // Find the coordinates of the rooms
+    rooms.forEach((room) => {
+        if (room.name === fromRoom) {
+            from = room;
+        }
+        if (room.name === toRoom) {
+            to = room;
+        }
+    });
 
-// Find stairs
-function findStairs() {
-    let room = null;
-    const floorMap = map[floor];
-    for (let y = 0; y < floorMap.length; y++) {
-        for (let x = 0; x < floorMap[0].length; x++) {
-            if (floorMap[y][x] === 's') {
-                room = {x: x, y: y};
+    // Find the coordinates of the stairs
+    for (let y = 0; y < map[floor].length; y++) {
+        for (let x = 0; x < map[floor][0].length; x++) {
+            if (map[floor][y][x] === 's') {
+                stairs = {x: x, y: y};
             }
         }
     }
-    return room;
+
+    if (!from || !to) {
+        console.error('Rooms not found');
+        return;
+    }
+
+    if (from.floor === to.floor) {
+        let path = findPath({ x: from.x, y: from.y }, { x: to.x, y: to.y });
+        if (path) {
+            drawPath(path);
+        } else {
+            console.error('No path found');
+        }
+    } else {
+        if (stairs) {
+            let path = null;
+            if (from.floor === floor) {
+                path = findPath({ x: from.x, y: from.y }, { x: stairs.x, y: stairs.y });
+            } else if (to.floor === floor) {
+                path = findPath({ x: stairs.x, y: stairs.y }, { x: to.x, y: to.y });
+            } else if (floor < to.floor) {
+                drawText(stairs, "Вверх ↑");
+                return;
+            } else if (floor > to.floor) {
+                drawText(stairs, "Вниз ↓");
+                return;
+            }
+
+            if (path) {
+                drawPath(path);
+            } else {
+                console.error('No path found');
+            }
+
+        } else {
+            console.error('Stairs not found');
+        }
+    }
 }
 
-window.drawMapWithPath = drawMapWithPath;
-window.changeFloor = changeFloor;
+function drawText(stairs, text) {
+    ctx.fillStyle = 'red';
 
-// Some mok data
-// r - room
-// c -  hole
-// s - stairs
-// If auditorium at lower or upper floor = draw path to s
-loadValues(
-    {
-        1: [ // First floor
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'c', 'c', 'c', 'c', 'c', 's', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', ' ', 'c', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', 'c', 'c', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', 'c', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', 'c', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'c', 'c', 'c', 'c', 'c', 'c', 'c', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        ],
-        2: [ // First floor
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'c', 'c', 'c', 'c', 'c', 's', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', ' ', 'c', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', ' ', 'c', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', 'r', 'c', ' ', ' ', ' '],
-            [' ', ' ', 'c', ' ', ' ', ' ', 'c', ' ', ' ', ' '],
-            [' ', ' ', 'c', 'c', 'c', 'c', 'c', 'c', 'c', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'c', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        ],
-    },
-    [
-        {name: '402', floor: 1, x: 2, y: 1},
-        {name: '409', floor: 2, x: 5, y: 5},
-    ],
-);
-// Mok data end
+    // Измерение ширины текста
+    let textMetrics = ctx.measureText(text);
+    let textWidth = textMetrics.width;
+
+    // Оценка высоты текста
+    let textHeight = parseInt(ctx.font.match(/\d+/), 10);
+
+    // Вычисление позиции для центрирования
+    let textX = stairs.x * cellSize + Math.round((cellSize - textWidth) / 2);
+    let textY = stairs.y * cellSize + Math.round((cellSize + textHeight) / 2);
+
+    ctx.fillText(text, textX, textY);
+}
+
+function findPath(start, end) {
+    console.log('Start:', start, 'End:', end);
+    let queue = [start];
+    let visited = new Set();
+    let cameFrom = new Map();
+    visited.add(`${start.x},${start.y}`);
+
+    while (queue.length > 0) {
+        let current = queue.shift();
+        console.log('Current:', current);
+
+        if (current.x === end.x && current.y === end.y) {
+            return reconstructPath(cameFrom, current);
+        }
+
+        let neighbors = getNeighbors(current);
+        console.log('Neighbors:', neighbors);
+
+        for (let neighbor of neighbors) {
+            let key = `${neighbor.x},${neighbor.y}`;
+            if (!visited.has(key)) {
+                queue.push(neighbor);
+                visited.add(key);
+                cameFrom.set(key, current);
+            }
+        }
+    }
+
+    // If can't without passing rooms - lite
+    queue = [start];
+    visited = new Set();
+    cameFrom = new Map();
+    visited.add(`${start.x},${start.y}`);
+
+    while (queue.length > 0) {
+        let current = queue.shift();
+        console.log('Current:', current);
+
+        if (current.x === end.x && current.y === end.y) {
+            return reconstructPath(cameFrom, current);
+        }
+
+        let neighbors = getNeighborsLite(current);
+        console.log('Neighbors:', neighbors);
+
+        for (let neighbor of neighbors) {
+            let key = `${neighbor.x},${neighbor.y}`;
+            if (!visited.has(key)) {
+                queue.push(neighbor);
+                visited.add(key);
+                cameFrom.set(key, current);
+            }
+        }
+    }
+
+    return null; // No path found
+}
+
+function getNeighbors(node) {
+    let neighbors = [];
+    let dirs = [
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+    ];
+
+    dirs.forEach((dir) => {
+        let neighborX = node.x + dir.x;
+        let neighborY = node.y + dir.y;
+
+        if (
+            neighborX >= 0 &&
+            neighborX < map[floor][0].length &&
+            neighborY >= 0 &&
+            neighborY < map[floor].length &&
+            (
+            map[floor][neighborY][neighborX] === 'c' ||
+            map[floor][neighborY][neighborX] === 'r' ||
+            map[floor][neighborY][neighborX] === 's'
+            )
+        ) {
+            if (map[floor][node.y][node.x] !== 'r') {
+                neighbors.push({ x: neighborX, y: neighborY });
+            }
+        }
+    });
+
+    return neighbors;
+}
+
+function getNeighborsLite(node) {
+    let neighbors = [];
+    let dirs = [
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+    ];
+
+    dirs.forEach((dir) => {
+        let neighborX = node.x + dir.x;
+        let neighborY = node.y + dir.y;
+
+        if (
+            neighborX >= 0 &&
+            neighborX < map[floor][0].length &&
+            neighborY >= 0 &&
+            neighborY < map[floor].length &&
+            (
+            map[floor][neighborY][neighborX] === 'c' ||
+            map[floor][neighborY][neighborX] === 'r' ||
+            map[floor][neighborY][neighborX] === 's'
+            )
+        ) {
+            if (map[floor][node.y][node.x] !== 'r' || map[floor][neighborY][neighborX] === 'c') {
+                neighbors.push({ x: neighborX, y: neighborY });
+            }
+        }
+    });
+
+    return neighbors;
+}
+
+function reconstructPath(cameFrom, current) {
+    let path = [current];
+    while (cameFrom.has(`${current.x},${current.y}`)) {
+        current = cameFrom.get(`${current.x},${current.y}`);
+        path.push(current);
+    }
+    return path.reverse();
+}
+
+function drawPath(path) {
+    ctx.beginPath();
+    ctx.moveTo(path[0].x * cellSize + cellSize / 2, path[0].y * cellSize + cellSize / 2);
+
+    for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(path[i].x * cellSize + cellSize / 2, path[i].y * cellSize + cellSize / 2);
+        drawArrow(
+            path[i - 1].x * cellSize + cellSize / 2, path[i - 1].y * cellSize + cellSize / 2,
+            path[i].x * cellSize + cellSize / 2, path[i].y * cellSize + cellSize / 2
+        );
+    }
+
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+}
+
+function drawArrow(fromX, fromY, toX, toY) {
+    const headLength = 15; // длина головы стрелки
+    const headWidth = 10; // ширина головы стрелки
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const angle = Math.atan2(dy, dx);
+
+    ctx.save(); // Save the current state of the canvas
+
+    // Draw the main line
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Draw the arrowhead
+    ctx.beginPath();
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(
+        toX - headLength * Math.cos(angle - Math.PI / 6),
+        toY - headLength * Math.sin(angle - Math.PI / 6)
+    );
+    ctx.lineTo(
+        toX - headWidth * Math.cos(angle),
+        toY - headWidth * Math.sin(angle)
+    );
+    ctx.lineTo(
+        toX - headLength * Math.cos(angle + Math.PI / 6),
+        toY - headLength * Math.sin(angle + Math.PI / 6)
+    );
+    ctx.closePath();
+    ctx.fillStyle = 'red';
+    ctx.fill();
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore(); // Restore the state of the canvas
+}
+
+/* Exporting functions */
+window.startBuilding = startBuilding;
+window.changeFloor = changeFloor;

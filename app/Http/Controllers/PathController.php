@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Path;
 use Illuminate\Http\Request;
 use App\Models\Auditorium;
 use App\Models\Building;
@@ -13,7 +14,20 @@ class PathController extends Controller
     public function index()
     {
         $buildings = Building::all();
-        return view('path', compact('buildings'));
+        $path = Path::all();
+
+        $allowedBuildings = [];
+
+        foreach ($buildings as $building) {
+            foreach ($path as $entry) {
+                if ($entry->building_id == $building->id) {
+                    $allowedBuildings[] = $building;
+                    break;
+                }
+            }
+        }
+
+        return view('path', ['buildings' => $allowedBuildings]);
     }
 }
 

@@ -1,0 +1,1 @@
+<button class="btn {{ $active ? "btn-warning" : "btn-outline-warning" }} me-2 floor_btn" id="floor_btn_{{ $floor }}" onclick="changeFloor({{ $floor }})">{{ $floor }} {{ __('Этаж') }}</button>

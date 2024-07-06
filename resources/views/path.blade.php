@@ -31,7 +31,7 @@
                             <label for="auditorium_to">{{ __('Вам нужно в аудиторию') }}:</label>
                             <select class="form-control" id="auditorium_to"></select>
                         </div>
-                        <button type="button" class="btn btn-success w-100" onclick="drawMapWithPath()">{{ __('Проложить') }}</button>
+                        <button type="button" class="btn btn-success w-100" onclick="startBuilding()">{{ __('Проложить') }}</button>
                     </form>
                 </div>
             </div>
@@ -42,12 +42,9 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="mb-2" id="floors">
-                        <button class="btn btn-warning" onclick="changeFloor(1)">1 этаж</button>
-                        <button class="btn btn-outline-warning" onclick="changeFloor(2)">2 этаж</button>
-                    </div>
+                    <div class="mb-2" id="floors"></div>
                     <div>
-                        <canvas id="mapCanvas" style="max-width: 100%"></canvas>
+                        <canvas id="mapCanvas" class="mw-100"></canvas>
                     </div>
                 </div>
             </div>
