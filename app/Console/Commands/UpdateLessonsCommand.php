@@ -62,13 +62,13 @@ class UpdateLessonsCommand extends Command
 
                     for ($i = 1; $i < 7; $i++)
                     {
-                        if (isset($response['previousSchedules'][$weekDays[$i]]))
+                        if (isset($response['schedules'][$weekDays[$i]]))
                         {
-                            foreach ($response['previousSchedules'][$weekDays[$i]] as $schedule)
+                            foreach ($response['schedules'][$weekDays[$i]] as $schedule)
                             {
                                 $lesson = Lesson::create([
                                     'group_id' => $group['id'],
-                                    'name' => $schedule['subjectFullName'],
+                                    'name' => $schedule['subjectFullName'] ?? '-',
                                     'start_time' => $schedule['startLessonTime'],
                                     'end_time' => $schedule['endLessonTime'],
                                     'week_day_id' => $i,
@@ -87,8 +87,11 @@ class UpdateLessonsCommand extends Command
                                     }
                                 }
 
-                                foreach ($schedule['weekNumber'] as $weekNumber) {
-                                    $lesson->weeksNumbers()->attach($weekNumber);
+                                if (isset($schedule['weekNumber']))
+                                {
+                                    foreach ($schedule['weekNumber'] as $weekNumber) {
+                                        $lesson->weeksNumbers()->attach($weekNumber);
+                                    }
                                 }
                             }
                         }
