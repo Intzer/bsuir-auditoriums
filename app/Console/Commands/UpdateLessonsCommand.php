@@ -36,14 +36,9 @@ class UpdateLessonsCommand extends Command
             Lesson::query()->delete();
             Group::query()->delete();
 
-            // $repeats = 0;
-
             $groups = $response->json();
             foreach ($groups as $group)
             {
-                // $repeats += 1;
-                // if ($repeats > 100) exit;
-
                 Group::create([
                     'id' => $group['id'],
                     'name' => $group['name'],
@@ -56,7 +51,6 @@ class UpdateLessonsCommand extends Command
                 if ($response->successful())
                 {
                     $response = $response->json();
-
                     $weekDays = [
                         1 => "Понедельник",
                         2 => "Вторник",

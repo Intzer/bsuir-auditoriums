@@ -53,7 +53,6 @@ class UpdateAuditoriumsCommand extends Command
                 ]);
             }
 
-            // Update auidotoriums
             foreach ($auditoriums as $auditorium)
             {
                 Auditorium::create([
